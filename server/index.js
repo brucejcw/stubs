@@ -1,7 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const { resolveRoot } = require('./util')
 
 const port = 5000
 const app = express()
@@ -11,8 +10,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 
 const router = express.Router()
-const { requireNoCache, getFilePath, cleanupPathname } = require('./util')
-const { getAllApis, setApi, setAll, getCache } = require('./sys')
+const { getPathname, resolveRoot } = require('./util')
+const service = require('./service')
 
 app.use(express.static(resolveRoot('views/static')))
 app.set('view engine', 'ejs')
@@ -31,30 +30,23 @@ router.get('/health', (req, res) => {
 })
 
 router.use('/api', checkApiEnable, (req, res) => {
-  const filePath = getFilePath(req)
-  const json = requireNoCache(filePath)(req)
-  res.json(json)
-})
-
-router.get('/stub/test/:api', (req, res, next) => {
-  const api = decodeURIComponent(cleanupPathname(req.params.api)) + '.js'
-  const item = getCache().find(_ => _.api === api)
-  const status = !item || !item.enable ? 404 : 200
-  res.status(status).send('奥利给')
+  const data = service.getApiData(req)
+  res.json(data)
 })
 
 router.get('/stub/all', (req, res) => {
-  res.json({ data: getAllApis() })
+  const data = service.getAllApis()
+  res.json({ data })
 })
 
 router.post('/stub/setApi', (req, res) => {
-  setApi(req.body)
-  res.send('奥利给')
+  service.setApi(req.body)
+  res.json({ success: true })
 })
 
 router.post('/stub/setAll', (req, res) => {
-  setAll(req.body.enable)
-  res.send('奥利给')
+  service.setAll(req.body)
+  res.json({ success: true })
 })
 
 app.use('/', router)
@@ -66,10 +58,10 @@ app.listen(port, err => {
 })
 
 function checkApiEnable(req, res, next) {
-  const api = `${cleanupPathname(req.url)}.js`
-  const item = getCache().find(_ => _.api === api)
-  if (!item || !item.enable) {
-    throw new Error(`api [${api}] not enable`)
+  const api = getPathname(req.url)
+  const found = service.getCache().find(_ => _.api === api)
+  if (!found || !found.enable) {
+    return res.status(404).send(`Not found api => ${api}`)
   }
   next()
 }

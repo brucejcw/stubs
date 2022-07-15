@@ -1,4 +1,5 @@
 const path = require('path')
+const urlUtil = require('url')
 const projectRoot = process.cwd()
 
 const requireNoCache = (filePath) => {
@@ -6,35 +7,21 @@ const requireNoCache = (filePath) => {
   return require(filePath)
 }
 
-/**
- * @param req
- * @returns {string}
- */
-const getFilePath = (req) => {
-  return resolveRoot(`./api/${cleanupPathname(req.url)}.js`)
-}
-
-/**
- * /usr/xxx/api/user.js => /user.js
- * @param p
- * @returns {*}
- */
-const fmtPath = (p) => {
-  return p.replace(resolveRoot('api'), '')
-}
-
 const resolveRoot = (p) => {
-  return path.resolve(projectRoot, p)
+  return path.resolve(projectRoot, './' + p)
 }
 
-const cleanupPathname = (url) => {
-  return url.replace(/\?.*/, '')
+const getPathname = (url) => {
+  return urlUtil.parse(url).pathname
+}
+
+const string2bool = (string) => {
+  return string === 'true' || string === true
 }
 
 module.exports = {
   requireNoCache,
-  getFilePath,
-  fmtPath,
   resolveRoot,
-  cleanupPathname,
+  getPathname,
+  string2bool,
 }
