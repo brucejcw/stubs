@@ -18,6 +18,7 @@ app.set('view engine', 'ejs')
 
 app.use('*', (req, res, next) => {
   console.log('req.originalUrl ==> ', req.originalUrl)
+  res.header("X-Powered-By", 'Stubs')
   next()
 })
 
