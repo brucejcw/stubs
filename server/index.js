@@ -30,7 +30,7 @@ router.get('/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
-router.use('/api', checkApiEnable, (req, res) => {
+router.use('/api', checkApiEnabled, (req, res) => {
   const data = service.getApiData(req)
   res.json(data)
 })
@@ -58,10 +58,10 @@ app.listen(port, err => {
   console.log(`> stubs is Ready on ${url}\n`)
 })
 
-function checkApiEnable(req, res, next) {
+function checkApiEnabled(req, res, next) {
   const api = getPathname(req.url)
   const found = service.getCache().find(_ => _.api === api)
-  if (!found || !found.enable) {
+  if (!found || !found.enabled) {
     return res.status(404).send(`Not found api => ${api}`)
   }
   next()

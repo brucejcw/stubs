@@ -14,7 +14,7 @@ const merge = (cache, origin) => {
     const found = cache.find(t => t.api === api)
     return {
       api,
-      enable: found ? found.enable : false
+      enabled: found ? found.enabled : false
     }
   })
 }
@@ -22,13 +22,13 @@ const merge = (cache, origin) => {
 const setApi = (newData) => {
   const found = apiList.find(t => t.api === newData.api)
   if (found) {
-    found.enable = string2bool(newData.enable)
+    found.enabled = string2bool(newData.enabled)
   }
 }
 
-const setAll = ({ enable }) => {
+const setAll = ({ enabled }) => {
   apiList.forEach(item => {
-    item.enable = string2bool(enable)
+    item.enabled = string2bool(enabled)
   })
 }
 
