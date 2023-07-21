@@ -25,7 +25,6 @@ put the following code to express, assuming `bff` is your api prefix.
 // server.js 
 
 if (process.env.NODE_ENV === 'development') {
-   // put it before bodyparser
    require('stubs-middleware')(server, require('../stubs/config.json'))
 }
 
